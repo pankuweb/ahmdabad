@@ -156,8 +156,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const body = req.body;
   //Validate Data
-  const { error } = loginValidation(body);
-  if (error) return next(new AppError(error.details[0].message, 400));
+  
   const { username, password, position } = req.body;
 
   //If email and pass exist
