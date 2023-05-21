@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
-const socket = require("socket.io");
+// const socket = require("socket.io");
 const http = require("http");
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -26,29 +26,29 @@ process.on("unhandledRejection", (err) => {
   console.log(err.name, err.message);
 });
 
-const io = new socket.Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true,
-    transports: ["websocket", "polling"],
-  },
-  allowEIO3: true,
-});
+// const io = new socket.Server(server, {
+//   cors: {
+//     origin: "*",
+//     methods: ["GET", "POST"],
+//     credentials: true,
+//     transports: ["websocket", "polling"],
+//   },
+//   allowEIO3: true,
+// });
 
-io.on("connection", (socket) => {
-  console.log("A user is connected", `${socket.id}`);
+// io.on("connection", (socket) => {
+//   console.log("A user is connected", `${socket.id}`);
 
-  socket.on("message", (message) => {
-    console.log(`message from ${socket.id} : ${message}`);
-  });
+//   socket.on("message", (message) => {
+//     console.log(`message from ${socket.id} : ${message}`);
+//   });
 
-  socket.on("disconnect", () => {
-    console.log(`socket ${socket.id} disconnected`);
-  });
-});
+//   socket.on("disconnect", () => {
+//     console.log(`socket ${socket.id} disconnected`);
+//   });
+// });
 
-app.set("io", io);
+// app.set("io", io);
 server.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
