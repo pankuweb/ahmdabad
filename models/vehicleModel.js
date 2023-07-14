@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const checkListParentSchema = new mongoose.Schema(
+const vehicleSchema = new mongoose.Schema(
   {
     sign1: {
       type: String,
@@ -26,12 +26,10 @@ const checkListParentSchema = new mongoose.Schema(
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-  }
+  },
+  { versionKey: false }
 );
 
-const checkListParent = mongoose.model(
-  "checkListParent",
-  checkListParentSchema
-);
+const Vehicle = mongoose.model("Vehicle", vehicleSchema);
 
-module.exports = checkListParent;
+module.exports = Vehicle;

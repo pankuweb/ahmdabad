@@ -123,6 +123,36 @@ exports.updateUser = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updatePass = catchAsync(async (req, res, next) => {
+  const { email, password, position } = req.body;
+  const user = await User.findOne({ email, position }).select("+password");
+
+  if (!user || !(await user.correctPassword(password, user.password))) {
+    return next(new AppError("Incorrect email or password", 401));
+  }
+
+  //
+  const filteredBody = filterObj(req.body);
+  if (req.file) filteredBody.photo = req.file.filename;
+
+  const data = req.body;
+
+  data.password = req.body.confirmPass;
+  let userData = { ...filteredBody, ...data };
+
+  const updates = Object.keys(userData);
+  updates.forEach((update) => (user[update] = userData[update]));
+  await user.save();
+  //
+
+  res.status(200).json({
+    status: "success",
+    message: `Customer updated successfully`,
+    data: {
+      user,
+    },
+  });
+});
 // Update order counts of purchased membership of user ----
 // -----------------------
 exports.updateOrderCounts = catchAsync(async (req, res, next) => {

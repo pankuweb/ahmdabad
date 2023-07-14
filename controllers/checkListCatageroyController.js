@@ -6,9 +6,8 @@ const checkListParent = require("../models/checkListCatageroyModel");
 // -----------------------
 exports.createchecklistParent = catchAsync(async (req, res, next) => {
   const checklistparent = await checkListParent.find();
-  var test = req.body;
-  test.formNo = checklistparent.length + 1;
-  const newchecklistparent = await checkListParent.create(test);
+
+  const newchecklistparent = await checkListParent.create(req.body);
 
   res.status(201).json({
     status: "success",
@@ -74,22 +73,6 @@ exports.deletechecklistparent = catchAsync(async (req, res, next) => {
     status: "success",
     data: {
       message: "checklistparent deleted successfully!",
-    },
-  });
-});
-
-exports.getUserByUn = catchAsync(async (req, res, next) => {
-  const user = await checkListParent.find();
-
-  if (!user) {
-    return next(new AppError("No data found with that form no", 404));
-  }
-
-  res.status(200).json({
-    status: "success",
-    message: "fetched successfully!",
-    data: {
-      user,
     },
   });
 });
