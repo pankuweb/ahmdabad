@@ -35,9 +35,6 @@ router
 router
   .route("/purchaseMembership/:id")
   .patch(userController.purchaseMembership);
-router.route("/updatePass").patch(authController.updatePass);
-router.route("/matchOTP").patch(authController.matchOTP);
-router.route("/changePass").patch(authController.changePass);
 
 router.route("/filter").get(userController.getFilteredUsers);
 router.patch("/updateOrderCounts/:id", userController.updateOrderCounts);

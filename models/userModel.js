@@ -6,57 +6,88 @@ var format = require("date-format");
 
 const userSchema = new mongoose.Schema(
   {
-    firstName: {
+    username: {
       type: String,
     },
-    middleName: {
+    combo: {
       type: String,
     },
-    lastName: {
+    txt_answer: {
       type: String,
     },
-    isCertified: {
-      type: Number,
-    },
-    certificate: {
+    password: {
       type: String,
     },
-    userName: {
+    salutation: {
       type: String,
     },
-    country: {
+    gender: {
+      type: String,
+    },
+    sign: {
+      type: String,
+    },
+    pmayCode4: {
+      type: String,
+    },
+    txt_FirstName: {
+      type: String,
+    },
+    txt_MiddleName: {
+      type: String,
+    },
+    txt_LastName: {
+      type: String,
+    },
+    txt_dob: {
+      type: String,
+    },
+    txt_age: {
+      type: String,
+    },
+    txt_Mobile: {
+      type: String,
+    },
+    txt_Email: {
       type: String,
     },
     unique_id: {
       type: String,
     },
-    email: {
-      type: String,
-      unique: [true],
-      required: true,
-    },
-    password: {
+    building: {
       type: String,
     },
-    status: {
-      type: String,
-      enum: ["active", "inactive", "busy"],
-      default: "active",
-    },
-    position: {
-      type: String,
-      default: "user_studemnt",
-    },
-    city: {
+    Society: {
       type: String,
     },
-    phone: {
+    cmb_2_Country: {
       type: String,
     },
-    otp: {
+    cmb_2_State: {
       type: String,
     },
-    image: {
+    cmb_2_Division: {
+      type: String,
+    },
+    cmb_2_District: {
+      type: String,
+    },
+    txt_2_District: {
+      type: String,
+    },
+    cmb_2_Taluka: {
+      type: String,
+    },
+    cmb_2_Village: {
+      type: String,
+    },
+    txt_2_pin: {
+      type: String,
+    },
+    chk_sms: {
+      type: String,
+    },
+    chk_email: {
       type: String,
     },
     createdAt: {

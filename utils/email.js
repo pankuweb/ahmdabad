@@ -3,24 +3,16 @@ const nodemailer = require("nodemailer");
 const sendEmail = async (options) => {
   // 1) Create a transporter
   let mailTransporter = nodemailer.createTransport({
-    // service: "gmail",
-    // auth: {
-    //   user: "ektaittech@gmail.com",
-    //   pass: "ociamuhselcbypvi",
-    // },
-    host: "smtp.hostinger.com",
-    port: 587,
-    secure: false,
+    service: "gmail",
     auth: {
-      user: "info@riskstifle.ca",
-      pass: "Amandeep@12",
+      user: "ektaittech@gmail.com",
+      pass: "ociamuhselcbypvi",
     },
-    connectionTimeout: 10000,
   });
 
   // 2) Define the email options
   let mailOptions = {
-    from: "info@riskstifle.ca",
+    from: "ektaittech@gmail.com",
     to: options.email,
     subject: options.subject,
     text: options.message,

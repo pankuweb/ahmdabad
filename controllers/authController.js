@@ -17,13 +17,7 @@ const {
 const client = new OAuth2Client(
   "1054152746452-9ahn2j0poepq7u0fsi631ko7c0mc7c0t.apps.googleusercontent.com"
 );
-const filterObj = (obj, ...allowedFields) => {
-  const newObj = {};
-  Object.keys(obj).forEach((el) => {
-    if (allowedFields.includes(el)) newObj[el] = obj[el];
-  });
-  return newObj;
-};
+
 const signToken = (id) => {
   //
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -67,19 +61,13 @@ exports.signup = catchAsync(async (req, res, next) => {
   const io = req.app.get("io");
 
   const body = req.body;
-  const userDataa = await User.find();
-  const filUs = userDataa.filter((i) => i.phone == body.phone);
   //Validate Data
   // const { error } = registerValidation(body);
-
-  // if (filUs.length != 0)
-  //   return res.status(400).json({
-  //     error: true,
-  //     msg: "User already exist with this mobile number!",
-  //   });
+  // if (error)
+  //   return res.status(400).json({ error: true, msg: error.details[0].message });
 
   User.findOne(
-    { email: new RegExp("^" + req.body.email + "$", "i") },
+    { txt_Email: new RegExp("^" + req.body.txt_Email + "$", "i") },
     async function (err, doc) {
       //Check if user exist then login
       if (doc) {
@@ -89,28 +77,75 @@ exports.signup = catchAsync(async (req, res, next) => {
         });
       } else {
         const total = await User.find();
-        const newUser = await User.create({
+        const user = await User.create({
           firstName: req.body.firstName,
-          middleName: req.body.middleName,
-          lastName: req.body.lastName,
-          position: req.body.position,
-          email: req.body.email,
-          mobile: req.body.mobile,
-          country: req.body.country,
+          username: req.body.username,
+          combo: req.body.combo,
+          txt_answer: req.body.txt_answer,
           password: req.body.password,
-          unique_id: `envy${total.length + 1}`,
-          user_id: req.body.password,
+          salutation: req.body.salutation,
+          gender: req.body.gender,
+          txt_FirstName: req.body.txt_FirstName,
+          txt_MiddleName: req.body.txt_MiddleName,
+          txt_LastName: req.body.txt_LastName,
+          txt_dob: req.body.txt_dob,
+          txt_age: req.body.txt_age,
+          txt_Mobile: req.body.txt_Mobile,
+          txt_Email: req.body.txt_Email,
+          unique_id: req.body.unique_id,
+          building: req.body.building,
+          Society: req.body.Society,
+          cmb_2_Country: req.body.cmb_2_Country,
+          cmb_2_State: req.body.cmb_2_State,
+          cmb_2_Division: req.body.cmb_2_Division,
+          cmb_2_District: req.body.cmb_2_District,
+          txt_2_District: req.body.txt_2_District,
+          cmb_2_Taluka: req.body.cmb_2_Taluka,
+          cmb_2_Village: req.body.cmb_2_Village,
+          txt_2_pin: req.body.txt_2_pin,
+          chk_sms: req.body.chk_sms,
+          chk_email: req.body.chk_email,
           // passwordConfirm: req.body.passwordConfirm ,
         });
         // --
 
         const message = `Welcome to riskstifle. You have registered successfully!`;
 
-        res.status(200).json({
-          status: "success",
-          message: "User created successfully!",
-        });
+        try {
+          // await sendEmail({
+          //   email: req.body.email,
+          //   message,
+          // });
+          // res.status(200).json({
+          //   status: "success",
+          //   message: "User created and message sent on mail successfully!",
+          // });
+        } catch (err) {
+          // await user.save({ validateBeforeSave: false });
+          // return next(
+          //   new AppError(
+          //     "There was an error sending the email. Try again later!"
+          //   ),
+          //   500
+          // );
+        }
+        await user.save({ validateBeforeSave: false });
         // ==
+
+        res.status(201).json({
+          status: "success",
+          message: `${
+            req.body.position == "user_admin"
+              ? "Admin"
+              : req.body.position == "user_customer"
+              ? "Customer"
+              : "Staff"
+          } account created successfully`,
+          // token,
+          data: {
+            user: user,
+          },
+        });
       }
     }
   );
@@ -121,12 +156,11 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const body = req.body;
   //Validate Data
-  const { error } = loginValidation(body);
-  if (error) return next(new AppError(error.details[0].message, 400));
-  const { email, password, position } = req.body;
+  
+  const { username, password, position } = req.body;
 
   //If email and pass exist
-  if (!email || !password) {
+  if (!username || !password) {
     return next(new AppError("Please provide us email and password!", 400));
   }
   // if (!position) {
@@ -134,7 +168,7 @@ exports.login = catchAsync(async (req, res, next) => {
   // }
 
   // 2) Check if user exists && password is correct
-  const user = await User.findOne({ email, position }).select("+password");
+  const user = await User.findOne({ username, position }).select("+password");
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
@@ -338,123 +372,123 @@ exports.googlesignup = catchAsync(async (req, res, next) => {
     { email: new RegExp("^" + email + "$", "i") },
     catchAsync(async function (err, doc) {
       //Check if user exist then login
-      if (doc) {
-        res.status(404).json({
-          status: "error",
-          message: `Account already exist please login!`,
-        });
-      } else {
-        //Check if user does not exist then signup
-        const io = req.app.get("io");
+      // if (doc) {
+      //   res.status(404).json({
+      //     status: "error",
+      //     message: `Account already exist please login!`,
+      //   });
+      // } else {
+      //   //Check if user does not exist then signup
+      //   const io = req.app.get("io");
 
-        const newUser = User.create({
-          firstName: data.name.split(" ")[0],
-          lastName: data.name.split(" ")[1],
-          position: position,
-          email: data.email,
-        });
-        const token = signToken(newUser.email);
-        //
+      // }
+      const newUser = User.create({
+        firstName: data.name.split(" ")[0],
+        lastName: data.name.split(" ")[1],
+        position: position,
+        email: data.email,
+      });
+      const token = signToken(newUser.email);
+      //
 
-        newUser.then((value) => {
-          // expected output: 123
-        });
-        User.find({}).exec(function (err, leads) {
-          io.emit("user-list", leads);
-          console.log(leads, "inleads");
-        });
-        Notification.find({ isViewed: false }).exec(function (err, leads) {
-          // const notif = leads.filter(
-          //   (item) => item.position == "user_customer"
-          // );
-          io.emit("unviewed-notification-list", leads);
-        });
-        Notification.find({}).exec(function (err, leads) {
-          io.emit("unClosed-notification-list", leads);
-        });
-        // const notification = {
-        //   id: newUser.id,
-        //   title: `A new customer created with customer id ${newUser.id}. Please review to confirm it`,
-        //   description: "A new customer created successfully!",
-        //   type: "customer",
-        // };
+      newUser.then((value) => {
+        // expected output: 123
+      });
+      User.find({}).exec(function (err, leads) {
+        io.emit("user-list", leads);
+        console.log(leads, "inleads");
+      });
+      Notification.find({ isViewed: false }).exec(function (err, leads) {
+        // const notif = leads.filter(
+        //   (item) => item.position == "user_customer"
+        // );
+        io.emit("unviewed-notification-list", leads);
+      });
+      Notification.find({}).exec(function (err, leads) {
+        io.emit("unClosed-notification-list", leads);
+      });
+      // const notification = {
+      //   id: newUser.id,
+      //   title: `A new customer created with customer id ${newUser.id}. Please review to confirm it`,
+      //   description: "A new customer created successfully!",
+      //   type: "customer",
+      // };
 
-        // Create notification
-        // if (newUser.position == "user_customer") {
+      // Create notification
+      // if (newUser.position == "user_customer") {
 
-        //   // Update users
-        //   const fleet = await Fleet.find();
-        //   const membership = await Membership.find();
-        //   const allUsers = await User.find();
-        //   const user = allUsers.filter(
-        //     (item) => item.position == "user_customer"
-        //   );
-        //   const totalOrders = await Order.find();
-        //   const totalAmountsofOrders = totalOrders.reduce((acc, item) => {
-        //     return acc + Number(item.total_amount ? item.total_amount : 0);
-        //   }, 0);
-        //   const data = {
-        //     totalAmountsofOrders: totalAmountsofOrders,
-        //     fleet: fleet.length,
-        //     membership: membership.length,
-        //     user: user.length,
-        //   };
-        //   io.emit("all-reports", data);
-        // } else if (newUser.position == "user_staff") {
-        //   const notification = {
-        //     id: newUser.id,
-        //     title: `A new staff created with staff id ${newUser.id}. Please review to confirm it`,
-        //     description: "A new staff created successfully!",
-        //     type: "staff",
-        //   };
+      //   // Update users
+      //   const fleet = await Fleet.find();
+      //   const membership = await Membership.find();
+      //   const allUsers = await User.find();
+      //   const user = allUsers.filter(
+      //     (item) => item.position == "user_customer"
+      //   );
+      //   const totalOrders = await Order.find();
+      //   const totalAmountsofOrders = totalOrders.reduce((acc, item) => {
+      //     return acc + Number(item.total_amount ? item.total_amount : 0);
+      //   }, 0);
+      //   const data = {
+      //     totalAmountsofOrders: totalAmountsofOrders,
+      //     fleet: fleet.length,
+      //     membership: membership.length,
+      //     user: user.length,
+      //   };
+      //   io.emit("all-reports", data);
+      // } else if (newUser.position == "user_staff") {
+      //   const notification = {
+      //     id: newUser.id,
+      //     title: `A new staff created with staff id ${newUser.id}. Please review to confirm it`,
+      //     description: "A new staff created successfully!",
+      //     type: "staff",
+      //   };
 
-        //   await Notification.create(notification);
-        //   const unViewedNotification = await Notification.find({
-        //     isViewed: false,
-        //   }).sort({
-        //     $natural: -1,
-        //   });
-        //   const unClosed = await Notification.find().sort({
-        //     $natural: -1,
-        //   });
+      //   await Notification.create(notification);
+      //   const unViewedNotification = await Notification.find({
+      //     isViewed: false,
+      //   }).sort({
+      //     $natural: -1,
+      //   });
+      //   const unClosed = await Notification.find().sort({
+      //     $natural: -1,
+      //   });
 
-        //   io.emit("unviewed-notification-list", unViewedNotification);
-        //   io.emit("unClosed-notification-list", unClosed);
+      //   io.emit("unviewed-notification-list", unViewedNotification);
+      //   io.emit("unClosed-notification-list", unClosed);
 
-        //   // Update users
-        //   const fleet = await Fleet.find();
-        //   const membership = await Membership.find();
-        //   const allUsers = await User.find();
-        //   const user = allUsers.filter(
-        //     (item) => item.position == "user_customer"
-        //   );
-        //   const totalOrders = await Order.find();
-        //   const totalAmountsofOrders = totalOrders.reduce((acc, item) => {
-        //     return acc + Number(item.total_amount ? item.total_amount : 0);
-        //   }, 0);
-        //   const data = {
-        //     totalAmountsofOrders: totalAmountsofOrders,
-        //     fleet: fleet.length,
-        //     membership: membership.length,
-        //     user: user.length,
-        //   };
-        //   io.emit("all-reports", data);
-        // }
-        //
-        res.status(201).json({
-          status: "success",
-          message: `${position} account created successfully`,
-          token,
-          data: {
-            user: {
-              firstName: data.name.split(" ")[0],
-              lastName: data.name.split(" ")[1],
-              position: position,
-              email: data.email,
-            },
+      //   // Update users
+      //   const fleet = await Fleet.find();
+      //   const membership = await Membership.find();
+      //   const allUsers = await User.find();
+      //   const user = allUsers.filter(
+      //     (item) => item.position == "user_customer"
+      //   );
+      //   const totalOrders = await Order.find();
+      //   const totalAmountsofOrders = totalOrders.reduce((acc, item) => {
+      //     return acc + Number(item.total_amount ? item.total_amount : 0);
+      //   }, 0);
+      //   const data = {
+      //     totalAmountsofOrders: totalAmountsofOrders,
+      //     fleet: fleet.length,
+      //     membership: membership.length,
+      //     user: user.length,
+      //   };
+      //   io.emit("all-reports", data);
+      // }
+      //
+      res.status(201).json({
+        status: "success",
+        message: `${position} account created successfully`,
+        token,
+        data: {
+          user: {
+            firstName: data.name.split(" ")[0],
+            lastName: data.name.split(" ")[1],
+            position: position,
+            email: data.email,
           },
-        });
-      }
+        },
+      });
     })
   );
 });
@@ -972,6 +1006,7 @@ exports.verifyForgotOTP = async (req, res) => {
 // -----------------------
 exports.resetPassword = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.params.id);
+
   if (!user) {
     return next(new AppError("User not found!", 400));
   }
@@ -1044,71 +1079,4 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
       500
     );
   }
-});
-
-exports.updatePass = catchAsync(async (req, res, next) => {
-  const test = req.body.email;
-  var user = await User.find({ email: test });
-  const user1 = await User.findById(user[0].id);
-  // await user.save();
-  const otp = Math.floor(1000 + Math.random() * 9000);
-
-  const filteredBody = filterObj(req.body);
-  if (req.file) filteredBody.photo = req.file.filename;
-
-  const data = req.body;
-
-  data.otp = otp;
-  let userData = { ...filteredBody, ...data };
-
-  const updates = Object.keys(userData);
-  updates.forEach((update) => (user1[update] = userData[update]));
-  await user1.save();
-  const message = `Your OTP : ${otp}`;
-  await sendEmail({
-    email: req.body.email,
-    message,
-  });
-  res.status(200).json({
-    status: "success",
-    message: "OTP sent on your email!",
-    otp,
-    user1,
-  });
-});
-
-exports.matchOTP = catchAsync(async (req, res, next) => {
-  const test = req.body.otp;
-  var user = await User.find({ otp: test });
-  if (user.length == 0) {
-    return next(new AppError("Wrong or invalid. Try again later!"), 500);
-  }
-  res.status(200).json({
-    status: "success",
-    message: "OTP verified!",
-  });
-});
-
-exports.changePass = catchAsync(async (req, res, next) => {
-  const test = req.body.otp;
-  var user = await User.find({ otp: test });
-  const user1 = await User.findById(user[0].id);
-
-  const filteredBody = filterObj(req.body);
-  if (req.file) filteredBody.photo = req.file.filename;
-
-  const data = req.body;
-
-  data.password = req.body.password;
-  let userData = { ...filteredBody, ...data };
-
-  const updates = Object.keys(userData);
-  updates.forEach((update) => (user1[update] = userData[update]));
-  await user1.save();
-
-  res.status(200).json({
-    status: "success",
-    message: "Password changed successfully!",
-    user: user1,
-  });
 });

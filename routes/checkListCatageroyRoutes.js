@@ -8,9 +8,6 @@ router
   .post(checkListCatageroyController.createchecklistParent)
   .get(checkListCatageroyController.getAllchecklistParent);
 
-router
-  .route("/:id")
-  .patch(checkListCatageroyController.updatechecklistParent)
-  .delete(checkListCatageroyController.deletechecklistparent);
+router.route("/:id").get(checkListCatageroyController.getUserByUn);
 
 module.exports = router;

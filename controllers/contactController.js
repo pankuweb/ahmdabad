@@ -48,7 +48,7 @@ exports.createContact = catchAsync(async (req, res, next) => {
 
   try {
     await sendEmail({
-      email: "info@riskstifle.ca",
+      email: "pankajittechxpert@gmail.com",
       message,
       contact: newContact,
     });
